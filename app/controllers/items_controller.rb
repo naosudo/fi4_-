@@ -23,15 +23,22 @@ class ItemsController < ApplicationController
   end
 
   def edit
-    
   end
-  def update
-    
 
+  def update
     if @item.update(item_params)
       redirect_to item_path(@item), notice: "商品情報を更新しました"
     else
       render :edit
+    end
+  end
+
+  def destroy
+    if current_user == @item.user
+      @item.destroy
+      redirect_to root_path, notice: "商品を削除しました"
+    else
+      redirect_to root_path, alert: "削除権限がありません"
     end
   end
 
