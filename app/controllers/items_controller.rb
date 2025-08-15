@@ -1,6 +1,7 @@
 class ItemsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :create, :edit, :update, :destroy]
   before_action :set_item, only: [:show, :edit, :update, :destroy]
+  before_action :redirect_unless_owner, only: [:edit, :update] 
   def index
     @items = Item.order('created_at DESC')
   end
@@ -22,13 +23,10 @@ class ItemsController < ApplicationController
   end
 
   def edit
-    redirect_to root_path unless current_user == @item.user
+    
   end
   def update
-    # 自身の出品商品以外は編集不可
-    unless current_user == @item.user
-      redirect_to root_path and return
-    end
+    
 
     if @item.update(item_params)
       redirect_to item_path(@item), notice: "商品情報を更新しました"
@@ -37,18 +35,13 @@ class ItemsController < ApplicationController
     end
   end
 
-  def destroy
-    if current_user == @item.user
-      @item.destroy
-      redirect_to root_path, notice: "商品を削除しました"
-    else
-      redirect_to root_path, alert: "削除権限がありません"
-    end
-  end
-
   private
   def set_item
     @item = Item.find(params[:id])
+  end
+
+  def redirect_unless_owner
+    redirect_to root_path unless current_user == @item.user
   end
 
   def item_params
